@@ -23,17 +23,19 @@ public:
     , m_hidden_nodes(i_hidden_nodes)
     , m_output_nodes(i_output_nodes)
     , m_learning_rate(i_learning_rate)
+    , m_activation_function([](real_type& io_value) { io_value = 1.0 / (1.0 + std::exp(-1.0 * io_value)); })
     {
+      // Initialize transition weights between input and hidden layers.
       m_weights_input_hidden  = GenerateNormalWeights(m_hidden_nodes,
                                                       m_input_nodes);
-
+      // Initialize transition weights between hidden and output layers.
       m_weights_hidden_output = GenerateNormalWeights(m_output_nodes,
                                                       m_hidden_nodes);
     }
 
     void Train();
 
-    void Query() const;
+    std::vector<real_type> Query(const std::vector<real_type>& i_inputs) const;
 
 private:
   /// Number of input nodes in the network.
@@ -44,6 +46,8 @@ private:
   const size_type m_output_nodes;
   /// Learning rate of the network.
   const real_type m_learning_rate;
+  /// Activation function.
+  const std::function<void(real_type&)> m_activation_function;
 
   /// Matrix of transition weights between input and hidden layers.
   matrix_type m_weights_input_hidden;
