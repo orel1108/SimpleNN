@@ -35,6 +35,11 @@ public:
 
     void Train();
 
+    /**
+     * @brief Queries Neural Network.
+     * @param[in] i_inputs Input data.
+     * @return Return result of query.
+     */
     std::vector<real_type> Query(const std::vector<real_type>& i_inputs) const;
 
 private:
@@ -53,4 +58,13 @@ private:
   matrix_type m_weights_input_hidden;
   /// Matrix of transition weights between hidden and output layers.
   matrix_type m_weights_hidden_output;
+
+  /**
+   * @brief Applies weights and activation function to input data.
+   * @param[in] i_weights Weights to be applied.
+   * @param[in] i_input Input data.
+   * @return Result of operation.
+   */
+  std::vector<real_type> _Apply(const matrix_type& i_weights,
+                                const std::vector<real_type>& i_input) const noexcept;
 };
