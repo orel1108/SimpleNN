@@ -4,7 +4,7 @@
 
 int main()
 {
-    NeuralNetwork nn;
+    NeuralNetwork nn(3, 3, 3, 0.5);
     nn.Train();
     nn.Query();
     std::cout << "It works" << std::endl;
