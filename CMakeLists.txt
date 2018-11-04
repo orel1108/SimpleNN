@@ -10,9 +10,12 @@ if(Boost_FOUND)
 endif()
 
 set(INCLUDE_DIR
-    include/NeuralNetwork.h)
+    include/NeuralNetwork.h
+    include/Types.h
+    include/WeightsGeneration.h)
 
 set(SRC_DIR
-    src/NeuralNetwork.cpp)
+    src/NeuralNetwork.cpp
+    src/WeightsGeneration.cpp)
 
 add_executable (NeuralNetwork ${INCLUDE_DIR} ${SRC_DIR} main.cpp)
