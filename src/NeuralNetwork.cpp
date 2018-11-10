@@ -3,30 +3,76 @@
 #include <algorithm>
 #include <random>
 
-void NeuralNetwork::Train()
+using namespace boost::numeric::ublas;
+
+///////////////////////////////////////////////////////////////////////////////
+
+void NeuralNetwork::Train
+(
+  const list_type& inputs,
+  const list_type& expected
+)
+noexcept
 {
+  if (inputs.size() != m_input_nodes || expected.size() != m_output_nodes)
+    return;
 
-}
+  // calculate outputs from hidden layer
+  const auto hidden_outputs = _Apply(m_weights_input_hidden, inputs);
+  // calculate outputs from output layer
+  const auto final_outputs  = _Apply(m_weights_hidden_output, hidden_outputs);
 
-std::vector<real_type> NeuralNetwork::Query(const std::vector<real_type>& i_inputs) const
-{
-  if (i_inputs.size() != m_input_nodes)
-    return {};
+  // calculate error on output layer
+  const auto output_error = expected - final_outputs;
+  // calculate error on hidden layer
+  const auto hidden_error = prod(trans(m_weights_hidden_output), output_error);
 
-  return _Apply(m_weights_hidden_output,
-           _Apply(m_weights_input_hidden, i_inputs));
+  const list_type ones(1, 1.0);
+
+  // update weights between hidden and output layers
+  m_weights_hidden_output += m_learning_rate * outer_prod(
+                               element_prod(
+                                 element_prod(output_error, final_outputs),
+                                 ones - final_outputs
+                               ),
+                               trans(hidden_outputs)
+                             );
+
+  // update weights between input and hidden and layers
+  m_weights_input_hidden += m_learning_rate * outer_prod(
+                              element_prod(
+                                element_prod(hidden_error, hidden_outputs),
+                                ones - hidden_outputs
+                              ),
+                              trans(inputs)
+                            );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::vector<real_type> NeuralNetwork::_Apply(const matrix_type& i_weights,
-                                             const std::vector<real_type>& i_input) const noexcept
+list_type NeuralNetwork::Query
+(
+  const list_type& inputs
+)
+const noexcept
 {
-  std::vector<real_type> result(i_weights.size1(), 0);
-  for (size_type r = 0; r < i_weights.size1(); ++r)
-    for (size_type c = 0; c < i_weights.size2(); ++c)
-      result[r] += i_weights(r, c) * i_input[c];
+  if (inputs.size() != m_input_nodes)
+    return {};
 
+  return _Apply(m_weights_hidden_output,
+                _Apply(m_weights_input_hidden, inputs));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+list_type NeuralNetwork::_Apply
+(
+  const matrix_type& weights,
+  const list_type& input
+)
+const noexcept
+{
+  list_type result = prod(weights, input);
   std::for_each(result.begin(), result.end(), m_activation_function);
   return result;
 }

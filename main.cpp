@@ -5,8 +5,12 @@
 int main()
 {
     NeuralNetwork nn(3, 3, 3, 0.5);
-    nn.Train();
-    const auto res = nn.Query({0.1, 0.5, 0.9});
+
+    const list_type inputs({ 0.1, 0.5, 0.9 });
+    const list_type expected({0.01, 0.98, 0.01});
+
+    nn.Train( inputs, expected);
+    const auto res = nn.Query(inputs);
     std::cout << "It works" << std::endl;
     for (const auto& val : res)
       std::cout << val << " ";
