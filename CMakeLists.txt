@@ -15,7 +15,6 @@ set(INCLUDE_DIR
     include/WeightsGeneration.h)
 
 set(SRC_DIR
-    src/NeuralNetwork.cpp
     src/WeightsGeneration.cpp)
 
 add_executable (NeuralNetwork ${INCLUDE_DIR} ${SRC_DIR} main.cpp)
