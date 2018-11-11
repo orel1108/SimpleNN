@@ -23,9 +23,7 @@ class NeuralNetwork final
       real_type learning_rate
     )
     noexcept
-      : m_input_nodes(input_nodes)
-      , m_hidden_nodes(hidden_nodes)
-      , m_output_nodes(output_nodes)
+      : m_layer_nodes_number{ { input_nodes, hidden_nodes, output_nodes } }
       , m_learning_rate(learning_rate)
       , m_activation_function([](real_type& value)
     {
@@ -33,9 +31,9 @@ class NeuralNetwork final
     })
     {
       // Initialize transition weights between input and hidden layers.
-      m_weights_input_hidden  = GenerateNormalWeights(m_hidden_nodes, m_input_nodes);
+      m_weights[0] = GenerateNormalWeights(m_layer_nodes_number[1], m_layer_nodes_number[0]);
       // Initialize transition weights between hidden and output layers.
-      m_weights_hidden_output = GenerateNormalWeights(m_output_nodes, m_hidden_nodes);
+      m_weights[1] = GenerateNormalWeights(m_layer_nodes_number[2], m_layer_nodes_number[1]);
     }
 
     /**
@@ -62,31 +60,28 @@ class NeuralNetwork final
     const noexcept;
 
   private:
-    /// Number of input nodes in the network.
-    const size_type m_input_nodes;
-    /// Number of hidden nodes in the network.
-    const size_type m_hidden_nodes;
-    /// Number of output nodes in the network.
-    const size_type m_output_nodes;
+    /// Number of nodes at each layer.
+    const std::array<size_type, 3> m_layer_nodes_number;
     /// Learning rate of the network.
     const real_type m_learning_rate;
     /// Activation function.
     const std::function<void(real_type&)> m_activation_function;
 
-    /// Matrix of transition weights between input and hidden layers.
-    matrix_type m_weights_input_hidden;
-    /// Matrix of transition weights between hidden and output layers.
-    matrix_type m_weights_hidden_output;
+    /// Transition weights matrices.
+    /// 0 - from input to hidden layer,
+    /// 1 - from first hidden layer to second layer, ...,
+    /// n - 1 from last hidden layer to output layer.
+    std::array<matrix_type, 2> m_weights;
 
     /**
      * @brief Applies weights and activation function to input data.
-     * @param[in] weights Weights to be applied.
+     * @param[in] index Index of transition weights to be applied.
      * @param[in] input Input data.
      * @return Result of operation.
      */
     list_type _Apply
     (
-      const matrix_type& weights,
+      size_type index,
       const list_type& input
     )
     const noexcept;
