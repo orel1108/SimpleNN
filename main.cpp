@@ -4,9 +4,9 @@
 
 int main()
 {
-    NeuralNetwork nn(3, 3, 3, 0.5);
+    NeuralNetwork nn(5, 4, 3, 0.5);
 
-    const list_type inputs({ 0.1, 0.5, 0.9 });
+    const list_type inputs({ 0.1, 0.3, 0.5, 0.7, 0.9 });
     const list_type expected({0.01, 0.98, 0.01});
 
     nn.Train( inputs, expected);

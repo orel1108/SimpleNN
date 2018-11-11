@@ -27,13 +27,11 @@ noexcept
   // calculate error on hidden layer
   const auto hidden_error = prod(trans(m_weights_hidden_output), output_error);
 
-  const list_type ones(1, 1.0);
-
   // update weights between hidden and output layers
   m_weights_hidden_output += m_learning_rate * outer_prod(
                                element_prod(
                                  element_prod(output_error, final_outputs),
-                                 ones - final_outputs
+                                 list_type(final_outputs.size(), 1.0) - final_outputs
                                ),
                                trans(hidden_outputs)
                              );
@@ -42,7 +40,7 @@ noexcept
   m_weights_input_hidden += m_learning_rate * outer_prod(
                               element_prod(
                                 element_prod(hidden_error, hidden_outputs),
-                                ones - hidden_outputs
+                                list_type(hidden_outputs.size(), 1.0) - hidden_outputs
                               ),
                               trans(inputs)
                             );
