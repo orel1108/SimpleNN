@@ -1,4 +1,4 @@
-#include "include/NeuralNetwork.h"
+#include "include/neural_network.h"
 
 #include "include/matrix_operations.h"
 
@@ -98,5 +98,8 @@ int main()
   const auto res = prod(l, r);
   const auto t = trans(l);
   const auto e = elem_prod(l, l);
+
+  const auto mn = generate_normal_weights<3, 4>();
+  const auto mu = generate_uniform_weights<3, 4>();
   return 0;
 }

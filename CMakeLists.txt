@@ -11,11 +11,11 @@ endif()
 
 set(INCLUDE_DIR
     include/matrix_operations.h
-    include/NeuralNetwork.h
-    include/Types.h
-    include/WeightsGeneration.h)
+    include/neural_network.h
+    include/types.h
+    include/weights_generation.h)
 
 set(SRC_DIR
-    src/WeightsGeneration.cpp)
+    src/weights_generation.cpp)
 
 add_executable (NeuralNetwork ${INCLUDE_DIR} ${SRC_DIR} main.cpp)

@@ -1,6 +1,4 @@
-#include "../include/WeightsGeneration.h"
-
-#include <random>
+#include "../include/weights_generation.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

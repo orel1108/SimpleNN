@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WeightsGeneration.h"
+#include "weights_generation.h"
 
 #include <algorithm>
 #include <random>
