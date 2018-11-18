@@ -10,8 +10,8 @@
  */
 matrix_type GenerateNormalWeights
 (
-  size_type num_rows,
-  size_type num_cols
+  std::size_t num_rows,
+  std::size_t num_cols
 )
 noexcept;
 
@@ -23,7 +23,7 @@ noexcept;
  */
 matrix_type GenerateUniformWeights
 (
-  size_type num_rows,
-  size_type num_cols
+  std::size_t num_rows,
+  std::size_t num_cols
 )
 noexcept;

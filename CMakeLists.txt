@@ -10,6 +10,7 @@ if(Boost_FOUND)
 endif()
 
 set(INCLUDE_DIR
+    include/matrix_operations.h
     include/NeuralNetwork.h
     include/Types.h
     include/WeightsGeneration.h)

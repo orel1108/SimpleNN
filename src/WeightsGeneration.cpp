@@ -6,8 +6,8 @@
 
 matrix_type GenerateNormalWeights
 (
-  size_type num_rows,
-  size_type num_cols
+  std::size_t num_rows,
+  std::size_t num_cols
 )
 noexcept
 {
@@ -15,8 +15,8 @@ noexcept
   std::normal_distribution<real_type> distribution(0.0, std::pow(num_rows, -0.5));
 
   matrix_type matrix(num_rows, num_cols);
-  for (size_type r = 0; r < num_rows; ++r)
-    for (size_type c = 0; c < num_cols; ++c)
+  for (std::size_t r = 0; r < num_rows; ++r)
+    for (std::size_t c = 0; c < num_cols; ++c)
       matrix(r, c) = distribution(generator);
 
   return matrix;
@@ -26,8 +26,8 @@ noexcept
 
 matrix_type GenerateUniformWeights
 (
-  size_type num_rows,
-  size_type num_cols
+  std::size_t num_rows,
+  std::size_t num_cols
 )
 noexcept
 {
@@ -35,8 +35,8 @@ noexcept
   std::uniform_real_distribution<real_type> distribution(-0.5, 0.5);
 
   matrix_type matrix(num_rows, num_cols);
-  for (size_type r = 0; r < num_rows; ++r)
-    for (size_type c = 0; c < num_cols; ++c)
+  for (std::size_t r = 0; r < num_rows; ++r)
+    for (std::size_t c = 0; c < num_cols; ++c)
       matrix(r, c) = distribution(generator);
 
   return matrix;

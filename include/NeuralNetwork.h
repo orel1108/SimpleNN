@@ -10,10 +10,10 @@
  * @brief TNodesPerLayer Number of nodes at each layer.
  * @note Currently only 3 layers are supported.
  */
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 class NeuralNetwork final
 {
-    static constexpr size_type NUMBER_OF_LAYERS = sizeof...(TNodesPerLayer);
+    static constexpr std::size_t NUMBER_OF_LAYERS = sizeof...(TNodesPerLayer);
     static_assert(NUMBER_OF_LAYERS >= 3);
 
   public:
@@ -26,11 +26,11 @@ class NeuralNetwork final
       real_type learning_rate
     )
     noexcept
-      : m_nodes_per_layer { std::forward<size_type>(TNodesPerLayer)... }
+      : m_nodes_per_layer { std::forward<std::size_t>(TNodesPerLayer)... }
       , m_learning_rate(learning_rate)
       , m_activation_function([](real_type& value) { value = 1.0 / (1.0 + std::exp(-1.0 * value)); })
     {
-      for (size_type weights_idx = 1; weights_idx < NUMBER_OF_LAYERS; ++weights_idx)
+      for (std::size_t weights_idx = 1; weights_idx < NUMBER_OF_LAYERS; ++weights_idx)
         m_weights[weights_idx - 1] = GenerateNormalWeights(
                                        m_nodes_per_layer[weights_idx + 0],
                                        m_nodes_per_layer[weights_idx - 1]
@@ -62,7 +62,7 @@ class NeuralNetwork final
 
   private:
     /// Number of nodes at each layer.
-    const std::array<size_type, NUMBER_OF_LAYERS> m_nodes_per_layer;
+    const std::array<std::size_t, NUMBER_OF_LAYERS> m_nodes_per_layer;
     /// Learning rate of the network.
     const real_type m_learning_rate;
     /// Activation function.
@@ -82,7 +82,7 @@ class NeuralNetwork final
      */
     list_type _Apply
     (
-      size_type index,
+      std::size_t index,
       const list_type& input
     )
     const noexcept;
@@ -126,7 +126,7 @@ class NeuralNetwork final
 //// IMPL
 ///////////////////////////////////////////////////////////////////////////////
 
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 void NeuralNetwork<TNodesPerLayer...>::Train
 (
   const list_type& input,
@@ -147,7 +147,7 @@ noexcept
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 list_type NeuralNetwork<TNodesPerLayer...>::Query
 (
   const list_type& input
@@ -158,7 +158,7 @@ const noexcept
     return {};
 
   auto res = input;
-  for (size_type index = 1; index < NUMBER_OF_LAYERS; ++index)
+  for (std::size_t index = 1; index < NUMBER_OF_LAYERS; ++index)
     res = _Apply(index - 1, res);
 
   return res;
@@ -166,10 +166,10 @@ const noexcept
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 list_type NeuralNetwork<TNodesPerLayer...>::_Apply
 (
-  size_type index,
+  std::size_t index,
   const list_type& input
 )
 const noexcept
@@ -181,7 +181,7 @@ const noexcept
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 std::vector<list_type> NeuralNetwork<TNodesPerLayer...>::_GetPerLayerOutput
 (
   const list_type& input
@@ -191,7 +191,7 @@ const noexcept
   std::vector<list_type> outputs;
   outputs.reserve(NUMBER_OF_LAYERS);
   outputs.push_back(input);
-  for (size_type index = 1; index < NUMBER_OF_LAYERS; ++index)
+  for (std::size_t index = 1; index < NUMBER_OF_LAYERS; ++index)
     outputs.push_back(_Apply(index - 1, outputs.back()));
 
   return std::move(outputs);
@@ -199,7 +199,7 @@ const noexcept
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 std::vector<list_type> NeuralNetwork<TNodesPerLayer...>::_GetPerLayerError
 (
   const list_type& total_error
@@ -209,7 +209,7 @@ const noexcept
   std::vector<list_type> errors;
   errors.reserve(NUMBER_OF_LAYERS - 1);
   errors.push_back(total_error);
-  for (size_type index = NUMBER_OF_LAYERS - 2; index > 0; --index)
+  for (std::size_t index = NUMBER_OF_LAYERS - 2; index > 0; --index)
     errors.push_back(boost::numeric::ublas::prod(
                        boost::numeric::ublas::trans(m_weights[index]),
                        errors.back()
@@ -221,7 +221,7 @@ const noexcept
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template<size_type... TNodesPerLayer>
+template<std::size_t... TNodesPerLayer>
 void NeuralNetwork<TNodesPerLayer...>::_UpdateWeights
 (
   const std::vector<list_type>& outputs,
@@ -229,7 +229,7 @@ void NeuralNetwork<TNodesPerLayer...>::_UpdateWeights
 )
 noexcept
 {
-  for (size_type index = NUMBER_OF_LAYERS - 2; index != static_cast<size_type>(-1); --index)
+  for (std::size_t index = NUMBER_OF_LAYERS - 2; index != static_cast<std::size_t>(-1); --index)
     m_weights[index] += m_learning_rate * boost::numeric::ublas::outer_prod(
                           boost::numeric::ublas::element_prod(
                             boost::numeric::ublas::element_prod(errors[index], outputs[index + 1]),
