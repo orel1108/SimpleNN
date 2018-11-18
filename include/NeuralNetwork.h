@@ -39,8 +39,8 @@ class NeuralNetwork final
 
     /**
      * @brief Performs one train iteration (updates weights) based on given and expected input data.
-     * @param[in] input Input data.
-     * @param[in] expected Expected result.
+     * @param[in] input     Input data.
+     * @param[in] expected  Expected result.
      */
     void Train
     (
@@ -86,6 +86,40 @@ class NeuralNetwork final
       const list_type& input
     )
     const noexcept;
+
+    /**
+     * @brief Calculates output at each layer.
+     * @param[in] input Input data.
+     * @return Output from each layer (The first element is original input, the last is output at last layer).
+     */
+    std::vector<list_type> _GetPerLayerOutput
+    (
+      const list_type& input
+    )
+    const noexcept;
+
+    /**
+     * @brief Calculates error at each layer.
+     * @param[in] total_error Total error calculated at last layer (expected output - actual output).
+     * @return Error at each layer.
+     */
+    std::vector<list_type> _GetPerLayerError
+    (
+      const list_type& total_error
+    )
+    const noexcept;
+
+    /**
+     * @brief Updates weights.
+     * @param[in] outputs   Per layer outputs.
+     * @param[in] errors    Per layer errors.
+     */
+    void _UpdateWeights
+    (
+      const std::vector<list_type>& outputs,
+      const std::vector<list_type>& errors
+    )
+    noexcept;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -104,33 +138,11 @@ noexcept
       expected.size() != m_nodes_per_layer[NUMBER_OF_LAYERS - 1])
     return;
 
-  // store output after each iteration
-  std::vector<list_type> outputs;
-  outputs.reserve(NUMBER_OF_LAYERS);
-  outputs.push_back(input);
-  for (size_type index = 1; index < NUMBER_OF_LAYERS; ++index)
-    outputs.push_back(_Apply(index - 1, outputs.back()));
+  const auto outputs = _GetPerLayerOutput(input);
 
-  // store errors at each layer
-  std::vector<list_type> errors;
-  errors.reserve(NUMBER_OF_LAYERS - 1);
-  errors.push_back(expected - outputs.back());
-  for (size_type index = NUMBER_OF_LAYERS - 2; index > 0; --index)
-    errors.push_back(boost::numeric::ublas::prod(
-                       boost::numeric::ublas::trans(m_weights[index]),
-                       errors.back()
-                     ));
-  std::reverse(errors.begin(), errors.end());
+  const auto errors = _GetPerLayerError(expected - outputs.back());
 
-  // update weights
-  for (size_type index = NUMBER_OF_LAYERS - 2; index != static_cast<size_type>(-1); --index)
-    m_weights[index] += m_learning_rate * boost::numeric::ublas::outer_prod(
-      boost::numeric::ublas::element_prod(
-        boost::numeric::ublas::element_prod(errors[index], outputs[index + 1]),
-        list_type(outputs[index + 1].size(), 1.0) - outputs[index + 1]
-      ),
-      boost::numeric::ublas::trans(outputs[index])
-    );
+  _UpdateWeights(outputs, errors);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,4 +177,64 @@ const noexcept
   list_type result = boost::numeric::ublas::prod(m_weights[index], input);
   std::for_each(result.begin(), result.end(), m_activation_function);
   return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<size_type... TNodesPerLayer>
+std::vector<list_type> NeuralNetwork<TNodesPerLayer...>::_GetPerLayerOutput
+(
+  const list_type& input
+)
+const noexcept
+{
+  std::vector<list_type> outputs;
+  outputs.reserve(NUMBER_OF_LAYERS);
+  outputs.push_back(input);
+  for (size_type index = 1; index < NUMBER_OF_LAYERS; ++index)
+    outputs.push_back(_Apply(index - 1, outputs.back()));
+
+  return std::move(outputs);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<size_type... TNodesPerLayer>
+std::vector<list_type> NeuralNetwork<TNodesPerLayer...>::_GetPerLayerError
+(
+  const list_type& total_error
+)
+const noexcept
+{
+  std::vector<list_type> errors;
+  errors.reserve(NUMBER_OF_LAYERS - 1);
+  errors.push_back(total_error);
+  for (size_type index = NUMBER_OF_LAYERS - 2; index > 0; --index)
+    errors.push_back(boost::numeric::ublas::prod(
+                       boost::numeric::ublas::trans(m_weights[index]),
+                       errors.back()
+                     ));
+  std::reverse(errors.begin(), errors.end());
+
+  return std::move(errors);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+template<size_type... TNodesPerLayer>
+void NeuralNetwork<TNodesPerLayer...>::_UpdateWeights
+(
+  const std::vector<list_type>& outputs,
+  const std::vector<list_type>& errors
+)
+noexcept
+{
+  for (size_type index = NUMBER_OF_LAYERS - 2; index != static_cast<size_type>(-1); --index)
+    m_weights[index] += m_learning_rate * boost::numeric::ublas::outer_prod(
+                          boost::numeric::ublas::element_prod(
+                            boost::numeric::ublas::element_prod(errors[index], outputs[index + 1]),
+                            list_type(outputs[index + 1].size(), 1.0) - outputs[index + 1]
+                          ),
+                          boost::numeric::ublas::trans(outputs[index])
+                        );
 }
