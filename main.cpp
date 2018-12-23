@@ -12,7 +12,7 @@ int main()
 
   constexpr double learning_rate = 0.3;
 
-  NeuralNetwork<NUMBER_OF_INPUT_LAYERS, NUMBER_OF_HIDDEN_LAYERS, NUMBER_OF_OUTPUT_LAYERS> nn(learning_rate);
+  nn::neural_network<NUMBER_OF_INPUT_LAYERS, NUMBER_OF_HIDDEN_LAYERS, NUMBER_OF_OUTPUT_LAYERS> nn(learning_rate);
 
   if (true)
     {
